@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 
-namespace Estudiante.Constants
+namespace Asistente.Constants
 {
     public class DBConnection
     {
