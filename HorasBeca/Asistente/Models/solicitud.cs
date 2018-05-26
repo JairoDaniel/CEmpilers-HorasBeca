@@ -26,5 +26,6 @@ namespace Asistente.Models
         public byte[] screen_cuenta_bancaria { get; set; }
         public string estado_estudiante { get; set; }
         public string estado_sistema { get; set; }
+        public string observacion { get; set; }
     }
 }

@@ -15,6 +15,37 @@ namespace Asistente.Controllers
     [RoutePrefix("asistente")]
     public class solicitudController : ApiController
     {
+
+        [Route("solicitudes")]
+        [HttpGet]
+        public IHttpActionResult getSolicitudes()
+        {
+            List<solicitud> solicitudes = new List<solicitud>();
+            using (SqlConnection connection = DBConnection.getConnection())
+            {
+
+                connection.Open();
+                SqlCommand command = new SqlCommand("SELECT * from [SOLICITUD]", connection);
+                try
+                {
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        solicitud pSolicitud = new solicitud();
+
+                        solicitudes.Add(leerJson(pSolicitud, reader));
+                    }
+                    return Json(solicitudes);
+                }
+                catch (SqlException ex)
+                {
+                    return Json(ex);
+                }
+                finally { connection.Close(); }
+            }
+
+        }
+
         [Route("solicitudesPendientes")]
         [HttpGet]
         public IHttpActionResult getSolicitudesPendientes()
@@ -44,8 +75,7 @@ namespace Asistente.Controllers
             }
 
         }
-
-
+        
         [Route("solicitudesAvaladas")]
         [HttpGet]
         public IHttpActionResult getSolicitudesAvaladas()
@@ -105,6 +135,54 @@ namespace Asistente.Controllers
 
         }
 
+        [Route("avalarSolicitud")]
+        [HttpPost]
+        public void avalar(solicitud pSolicitud)
+        {
+            using (SqlConnection connection = DBConnection.getConnection())
+            {
+
+                SqlCommand command = new SqlCommand("dbo.avalar", connection);
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.AddWithValue("@id_solicitud", SqlDbType.Int).Value = Convert.ToInt32(pSolicitud.id_solicitud);
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+                catch (SqlException ex)
+                {
+                    Console.WriteLine(ex);
+                }
+                finally { connection.Close(); }
+            }
+        }
+
+        [Route("noAvalarSolicitud")]
+        [HttpPost]
+        public void noAvalar(solicitud pSolicitud)
+        {
+            using (SqlConnection connection = DBConnection.getConnection())
+            {
+
+                SqlCommand command = new SqlCommand("dbo.no_avalar", connection);
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.AddWithValue("@id_solicitud", SqlDbType.Int).Value = Convert.ToInt32(pSolicitud.id_solicitud);
+                command.Parameters.AddWithValue("@observacion", SqlDbType.VarChar).Value = pSolicitud.observacion;
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+                catch (SqlException ex)
+                {
+                    Console.WriteLine(ex);
+                }
+                finally { connection.Close(); }
+            }
+        }
 
         private solicitud leerJson(solicitud pSolicitud, SqlDataReader reader)
         {
