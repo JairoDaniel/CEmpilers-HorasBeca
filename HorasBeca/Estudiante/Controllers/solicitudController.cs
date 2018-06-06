@@ -47,7 +47,7 @@ namespace Estudiante.Controllers
 
         [Route("ingresarSolicitud")]
         [HttpPost]
-        public void register(solicitud pSolicitud)
+        public void nuevaSolicitud(solicitud pSolicitud)
         {
             using (SqlConnection connection = DBConnection.getConnection())
             {
