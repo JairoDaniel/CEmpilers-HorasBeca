@@ -208,6 +208,26 @@ namespace Comision.Controllers
             return pSolicitud;
         }
 
+        private cancelacion leerCancelacion(cancelacion pCancelacion, SqlDataReader reader)
+        {
+            try
+            {
+                pCancelacion.id_solicitud = reader.GetInt32(0);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {
+                pCancelacion.id_solicitud = 0;
+            }
+            try
+            {
+                pCancelacion.observacion = reader.GetString(1);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {
+                pCancelacion.observacion = "";
+            }
+            return pCancelacion;
+        }
         [Route("solicitudesAvaladas")]
         [HttpGet]
         public IHttpActionResult getSolicitudesPendientes()
@@ -238,6 +258,33 @@ namespace Comision.Controllers
 
         }
 
+        [Route("solicitudesCanceladas")]
+        [HttpGet]
+        public IHttpActionResult getSolicitudesCanceladas()
+        {
+            List<cancelacion> cancelaciones = new List<cancelacion>();
+            using (SqlConnection connection = DBConnection.getConnection())
+            {
 
+                connection.Open();
+                SqlCommand command = new SqlCommand("SELECT * from [SOLICITUD_CANCELACION]", connection);
+                try
+                {
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        cancelacion pCancelacion = new cancelacion();
+
+                        cancelaciones.Add(leerCancelacion(pCancelacion, reader));
+                    }
+                    return Json(cancelaciones);
+                }
+                catch (SqlException ex)
+                {
+                    return Json(ex);
+                }
+                finally { connection.Close(); }
+            }
+        }
     }
 }

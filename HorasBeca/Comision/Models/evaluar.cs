@@ -14,6 +14,12 @@ namespace Comision.Models
         public string observacion { get; set; }
     }
 
+    public class cancelacion
+    {
+        public int id_solicitud { get; set; }
+        public string observacion { get; set; }
+    }
+
     public class solicitud
     {
         public int id_solicitud { get; set; }
