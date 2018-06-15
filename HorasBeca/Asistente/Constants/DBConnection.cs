@@ -10,8 +10,9 @@ namespace Asistente.Constants
     {
         public static SqlConnection getConnection()
         {
-            SqlConnection connection = new SqlConnection("Data Source = DESKTOP-059I8H7\\SQLSERVERHB; Initial Catalog = HorasBecaDB; Integrated Security = true;");
+            SqlConnection connection = new SqlConnection("Data Source = DESKTOP-BBHJE8R\\SQLEXPRESS; Initial Catalog = HorasBecaDB; Integrated Security = true;");
             return connection;
+            
         }
     }
 }

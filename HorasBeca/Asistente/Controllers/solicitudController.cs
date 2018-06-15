@@ -75,7 +75,7 @@ namespace Asistente.Controllers
             }
 
         }
-        
+
         [Route("solicitudesAvaladas")]
         [HttpGet]
         public IHttpActionResult getSolicitudesAvaladas()
@@ -196,7 +196,7 @@ namespace Asistente.Controllers
             }
             try
             {
-                pSolicitud.fecha = reader.GetDateTime(1);
+                pSolicitud.fecha = reader.GetDateTime(1).ToString("dd-MM-yyyy");
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
@@ -317,5 +317,87 @@ namespace Asistente.Controllers
             }
             return pSolicitud;
         }
+
+        private fecha leerFecha(fecha pFecha, SqlDataReader reader)
+        {
+            try
+            {
+                pFecha.fecha_inicio = reader.GetDateTime(0).ToString("dd-MM-yyyy");
+               
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {   }
+
+            try
+            {
+                pFecha.fecha_final = reader.GetDateTime(1).ToString("dd-MM-yyyy");
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {   }
+            return pFecha;
+        }
+
+        [Route("getPeriodo")]
+        [HttpGet]
+        public IHttpActionResult getPeriodo()
+        {
+            List<fecha> fecha = new List<fecha>();
+            using (SqlConnection connection = DBConnection.getConnection())
+            {
+
+                SqlCommand command = new SqlCommand("dbo.get_periodo", connection);
+                command.CommandType = CommandType.StoredProcedure;
+
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        fecha pFecha = new fecha();
+
+                        fecha.Add(leerFecha(pFecha, reader));
+                    }
+                    return Json(fecha);
+
+                } 
+                catch (SqlException ex)
+                {
+                    Console.WriteLine(ex);
+                    return Json(fecha);
+                } 
+                finally { connection.Close(); }
+            }
+        }
+
+        [Route("setPeriodo")]
+        [HttpPost]
+        public void setPeriodo(fecha pfecha)
+        {
+            using (SqlConnection connection = DBConnection.getConnection())
+            {
+
+                SqlCommand command = new SqlCommand("dbo.ingresar_periodo", connection);
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.AddWithValue("@fecha_inicio", SqlDbType.Date).Value = Convert.ToDateTime(pfecha.fecha_inicio);
+                command.Parameters.AddWithValue("@fecha_final", SqlDbType.Date).Value = Convert.ToDateTime(pfecha.fecha_final);
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+                catch (SqlException ex)
+                {
+                    Console.WriteLine(ex);
+                }
+                finally { connection.Close(); }
+            }
+        }
+
     }
+
+
 }
+

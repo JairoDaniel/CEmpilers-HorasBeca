@@ -8,7 +8,7 @@ namespace Asistente.Models
     public class solicitud
     {
         public int id_solicitud { get; set; }
-        public DateTime fecha { get; set; }
+        public string fecha { get; set; }
         public int semestre { get; set; }
         public int cedula { get; set; }
         public int carnet { get; set; }
@@ -27,5 +27,7 @@ namespace Asistente.Models
         public string estado_estudiante { get; set; }
         public string estado_sistema { get; set; }
         public string observacion { get; set; }
+        
     }
+
 }
