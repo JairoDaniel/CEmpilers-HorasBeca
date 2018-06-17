@@ -151,7 +151,7 @@ namespace Comision.Controllers
             }
             try
             {
-                pSolicitud.ponderado_general = reader.GetDouble(10);
+                pSolicitud.ponderado_general = reader.GetFloat(10);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
@@ -159,7 +159,7 @@ namespace Comision.Controllers
             }
             try
             {
-                pSolicitud.ponderado_semestral = reader.GetDouble(11);
+                pSolicitud.ponderado_semestral = reader.GetFloat(11);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
