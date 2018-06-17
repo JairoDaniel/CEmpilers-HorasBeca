@@ -16,30 +16,23 @@ namespace Comision.Controllers
     {
         [Route("aprobarSolicitud")]
         [HttpPost]
-        public void aprobar(evaluar solicitud)
+        public void aprobar(aprobada solicitud)
         {
             using (SqlConnection connection = DBConnection.getConnection())
             {
 
                 SqlCommand command = new SqlCommand("dbo.aprobar", connection);
-                SqlCommand commandHora = new SqlCommand("dbo.asignar_horas", connection);
                 command.CommandType = CommandType.StoredProcedure;
-                commandHora.CommandType = CommandType.StoredProcedure;
-
+               
                 command.Parameters.AddWithValue("@id_solicitud", SqlDbType.Int).Value = Convert.ToInt32(solicitud.id_solicitud);
                 command.Parameters.AddWithValue("@horas", SqlDbType.Int).Value = Convert.ToInt32(solicitud.horas);
                 command.Parameters.AddWithValue("@responsable", SqlDbType.VarChar).Value = solicitud.responsable;
-
-
-
-                commandHora.Parameters.AddWithValue("@carnet", SqlDbType.Int).Value = Convert.ToInt32(solicitud.carnet);
-                commandHora.Parameters.AddWithValue("@horas", SqlDbType.Int).Value = Convert.ToInt32(solicitud.horas);
+                command.Parameters.AddWithValue("@horas_extra", SqlDbType.Int).Value = Convert.ToInt32(solicitud.horas_extra);
 
                 try
                 {
                     connection.Open();
                     command.ExecuteNonQuery();
-                    commandHora.ExecuteNonQuery();
                 }
                 catch (SqlException ex)
                 {
@@ -51,7 +44,7 @@ namespace Comision.Controllers
 
         [Route("rechazarSolicitud")]
         [HttpPost]
-        public void rechazar(evaluar solicitud)
+        public void rechazar(rechazada solicitud)
         {
             using (SqlConnection connection = DBConnection.getConnection())
             {
