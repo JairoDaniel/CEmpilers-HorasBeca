@@ -11,6 +11,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asistente", "Asistente\Asis
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Responsable", "Responsable\Responsable.csproj", "{E657D9CE-D92A-4E07-9F5A-3116212FAF84}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DB", "DB", "{92DFCB1B-261F-4999-BC5C-A395DB7D0134}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\..\Desktop\HorasBeca\CreacionDB.sql = ..\..\..\..\Desktop\HorasBeca\CreacionDB.sql
+		..\..\..\..\Desktop\HorasBeca\PopulacionDB.sql = ..\..\..\..\Desktop\HorasBeca\PopulacionDB.sql
+		..\..\..\..\Desktop\HorasBeca\ProcedimientosAlmacenados.sql = ..\..\..\..\Desktop\HorasBeca\ProcedimientosAlmacenados.sql
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
