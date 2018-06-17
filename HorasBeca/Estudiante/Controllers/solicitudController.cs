@@ -62,17 +62,22 @@ namespace Estudiante.Controllers
                 command.Parameters.AddWithValue("@apellido1", SqlDbType.VarChar).Value = pSolicitud.apellido1;
                 command.Parameters.AddWithValue("@apellido2", SqlDbType.VarChar).Value = pSolicitud.apellido2;
                 command.Parameters.AddWithValue("@telefono", SqlDbType.Int).Value = Convert.ToInt32(pSolicitud.telefono);
+                command.Parameters.AddWithValue("@tipo_beca", SqlDbType.VarChar).Value = pSolicitud.tipo_beca;
                 command.Parameters.AddWithValue("@email", SqlDbType.VarChar).Value = pSolicitud.email;
                 command.Parameters.AddWithValue("@ponderado_general", SqlDbType.Float).Value = Convert.ToDouble(pSolicitud.ponderado_general);
                 command.Parameters.AddWithValue("@ponderado_semestral", SqlDbType.Float).Value = Convert.ToDouble(pSolicitud.ponderado_semestral);
+                command.Parameters.AddWithValue("@cumple_requisitos", SqlDbType.VarChar).Value = pSolicitud.cumple_requisitos;
                 command.Parameters.AddWithValue("@cuenta_bancaria", SqlDbType.VarChar).Value = pSolicitud.cuenta_bancaria;
-                command.Parameters.AddWithValue("@tipo_beca", SqlDbType.VarChar).Value = pSolicitud.tipo_beca;
-                command.Parameters.AddWithValue("@screen_ponderado_general", SqlDbType.Image).Value = pSolicitud.screen_ponderado_general;
-                command.Parameters.AddWithValue("@screen_ponderado_semestral", SqlDbType.Image).Value = pSolicitud.screen_ponderado_semestral;
-                command.Parameters.AddWithValue("@screen_cuenta_bancaria", SqlDbType.Image).Value = pSolicitud.screen_cuenta_bancaria;
+                command.Parameters.AddWithValue("@screen_ponderado_general", SqlDbType.VarChar).Value = pSolicitud.screen_ponderado_general;
+                command.Parameters.AddWithValue("@screen_ponderado_semestral", SqlDbType.VarChar).Value = pSolicitud.screen_ponderado_semestral;
+                command.Parameters.AddWithValue("@screen_cuenta_bancaria", SqlDbType.VarChar).Value = pSolicitud.screen_cuenta_bancaria;
                 command.Parameters.AddWithValue("@estado_estudiante", SqlDbType.VarChar).Value = pSolicitud.estado_estudiante;
                 command.Parameters.AddWithValue("@estado_sistema", SqlDbType.VarChar).Value = pSolicitud.estado_sistema;
-
+                command.Parameters.AddWithValue("@tiene_nombramiento", SqlDbType.VarChar).Value = pSolicitud.tiene_nombramiento;
+                command.Parameters.AddWithValue("@horas_nombradas", SqlDbType.Int).Value = pSolicitud.horas_nombradas;
+                command.Parameters.AddWithValue("@tipo_beca_nombrada", SqlDbType.VarChar).Value = pSolicitud.tipo_beca;
+                command.Parameters.AddWithValue("@lugar_nombramiento", SqlDbType.VarChar).Value = pSolicitud.lugar_nombramiento;
+                 
                 try
                 {
                     connection.Open();
@@ -98,7 +103,7 @@ namespace Estudiante.Controllers
             }
             try
             {
-                pSolicitud.fecha = reader.GetDateTime(1);
+                pSolicitud.fecha = reader.GetDateTime(1).ToString("dd-MM-yyyy");
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
@@ -162,7 +167,15 @@ namespace Estudiante.Controllers
             }
             try
             {
-                pSolicitud.email = reader.GetString(9);
+                pSolicitud.tipo_beca = reader.GetString(9);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {
+                pSolicitud.tipo_beca = null;
+            }
+            try
+            {
+                pSolicitud.email = reader.GetString(10);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
@@ -170,7 +183,7 @@ namespace Estudiante.Controllers
             }
             try
             {
-                pSolicitud.ponderado_general = reader.GetDouble(10);
+                pSolicitud.ponderado_general = reader.GetFloat(11);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
@@ -178,7 +191,7 @@ namespace Estudiante.Controllers
             }
             try
             {
-                pSolicitud.ponderado_semestral = reader.GetDouble(11);
+                pSolicitud.ponderado_semestral = reader.GetFloat(12);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
@@ -186,24 +199,24 @@ namespace Estudiante.Controllers
             }
             try
             {
-                pSolicitud.cuenta_bancaria = reader.GetString(12);
+                pSolicitud.cumple_requisitos = reader.GetString(13);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {
+                pSolicitud.cumple_requisitos = null;
+            }
+            try
+            {
+                pSolicitud.cuenta_bancaria = reader.GetString(14);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
                 pSolicitud.cuenta_bancaria = null;
             }
+            //NO SE CONSIDERAN LOS SCREENS 15/16/17
             try
             {
-                pSolicitud.tipo_beca = reader.GetString(13);
-            }
-            catch (System.Data.SqlTypes.SqlNullValueException ex)
-            {
-                pSolicitud.tipo_beca = null;
-            }
-            //15,16,17
-            try
-            {
-                pSolicitud.estado_estudiante = reader.GetString(17);
+                pSolicitud.estado_estudiante = reader.GetString(18);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
@@ -211,12 +224,45 @@ namespace Estudiante.Controllers
             }
             try
             {
-                pSolicitud.estado_sistema = reader.GetString(18);
+                pSolicitud.estado_sistema = reader.GetString(19);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
                 pSolicitud.estado_sistema = null;
             }
+            try
+            {
+                pSolicitud.tiene_nombramiento = reader.GetString(20);
+            }
+            catch
+            {
+                pSolicitud.tiene_nombramiento = null;
+            }
+            try
+            {
+                pSolicitud.horas_nombradas = reader.GetInt32(21);
+            }
+            catch
+            {
+                pSolicitud.horas_nombradas = 0;
+            }
+            try
+            {
+                pSolicitud.tipo_beca_nombrada = reader.GetString(22);
+            }
+            catch
+            {
+                pSolicitud.tipo_beca_nombrada = null;
+            }
+            try
+            {
+                pSolicitud.lugar_nombramiento = reader.GetString(23);
+            }
+            catch
+            {
+                pSolicitud.lugar_nombramiento = null;
+            }
+
             return pSolicitud;
         }
     }
