@@ -130,9 +130,8 @@ namespace Responsable.Controllers
 
         [Route("getAsistentes")]
         [HttpGet]
-        public IHttpActionResult getAsistentes()
+        public IHttpActionResult getAsistentes(string responsable)
         {
-            string responsable = "'nereo'";
             List<int> ids = new List<int>();
             ids = getIds(responsable);
             int largo = ids.Count();
