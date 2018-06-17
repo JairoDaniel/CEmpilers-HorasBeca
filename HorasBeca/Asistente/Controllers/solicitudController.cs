@@ -16,7 +16,7 @@ namespace Asistente.Controllers
     public class solicitudController : ApiController
     {
 
-        [Route("solicitudes")]
+        [Route("obtenerSolicitudes")]
         [HttpGet]
         public IHttpActionResult getSolicitudes()
         {
@@ -25,7 +25,7 @@ namespace Asistente.Controllers
             {
 
                 connection.Open();
-                SqlCommand command = new SqlCommand("SELECT * from [SOLICITUD]", connection);
+                SqlCommand command = new SqlCommand("SELECT * from [SOLICITUD] WHERE estado_sistema='pendiente' OR estado_sistema='avalada' OR estado_sistema='noAvalada'", connection);
                 try
                 {
                     SqlDataReader reader = command.ExecuteReader();
@@ -55,7 +55,7 @@ namespace Asistente.Controllers
             {
 
                 connection.Open();
-                SqlCommand command = new SqlCommand("SELECT * from [SOLICITUD] where estado_sistema = 'pendiente'", connection);
+                SqlCommand command = new SqlCommand("SELECT * from [SOLICITUD] WHERE estado_sistema='pendiente'", connection);
                 try
                 {
                     SqlDataReader reader = command.ExecuteReader();
@@ -85,7 +85,7 @@ namespace Asistente.Controllers
             {
 
                 connection.Open();
-                SqlCommand command = new SqlCommand("SELECT * from [SOLICITUD] where estado_sistema = 'avalada'", connection);
+                SqlCommand command = new SqlCommand("SELECT * from [SOLICITUD] WHERE estado_sistema='avalada'", connection);
                 try
                 {
                     SqlDataReader reader = command.ExecuteReader();
@@ -114,7 +114,7 @@ namespace Asistente.Controllers
             {
 
                 connection.Open();
-                SqlCommand command = new SqlCommand("SELECT * from [SOLICITUD] where estado_sistema = 'no_avalada'", connection);
+                SqlCommand command = new SqlCommand("SELECT * from [SOLICITUD] WHERE estado_sistema='noAvalada'", connection);
                 try
                 {
                     SqlDataReader reader = command.ExecuteReader();
@@ -134,7 +134,7 @@ namespace Asistente.Controllers
             }
 
         }
-
+        
         [Route("avalarSolicitud")]
         [HttpPost]
         public void avalar(solicitud pSolicitud)
@@ -183,7 +183,7 @@ namespace Asistente.Controllers
                 finally { connection.Close(); }
             }
         }
-
+        
         private solicitud leerJson(solicitud pSolicitud, SqlDataReader reader)
         {
             try
@@ -260,7 +260,15 @@ namespace Asistente.Controllers
             }
             try
             {
-                pSolicitud.email = reader.GetString(9);
+                pSolicitud.tipo_beca = reader.GetString(9);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {
+                pSolicitud.tipo_beca = null;
+            }
+            try
+            {
+                pSolicitud.email = reader.GetString(10);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
@@ -268,7 +276,7 @@ namespace Asistente.Controllers
             }
             try
             {
-                pSolicitud.ponderado_general = reader.GetDouble(10);
+                pSolicitud.ponderado_general = reader.GetFloat(11);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
@@ -276,7 +284,7 @@ namespace Asistente.Controllers
             }
             try
             {
-                pSolicitud.ponderado_semestral = reader.GetDouble(11);
+                pSolicitud.ponderado_semestral = reader.GetFloat(12);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
@@ -284,24 +292,24 @@ namespace Asistente.Controllers
             }
             try
             {
-                pSolicitud.cuenta_bancaria = reader.GetString(12);
+                pSolicitud.cumple_requisitos = reader.GetString(13);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {
+                pSolicitud.cumple_requisitos = null;
+            }
+            try
+            {
+                pSolicitud.cuenta_bancaria = reader.GetString(14);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
                 pSolicitud.cuenta_bancaria = null;
             }
+            //NO SE CONSIDERAN LOS SCREENS 15/16/17
             try
             {
-                pSolicitud.tipo_beca = reader.GetString(13);
-            }
-            catch (System.Data.SqlTypes.SqlNullValueException ex)
-            {
-                pSolicitud.tipo_beca = null;
-            }
-            //15,16,17
-            try
-            {
-                pSolicitud.estado_estudiante = reader.GetString(17);
+                pSolicitud.estado_estudiante = reader.GetString(18);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
@@ -309,15 +317,48 @@ namespace Asistente.Controllers
             }
             try
             {
-                pSolicitud.estado_sistema = reader.GetString(18);
+                pSolicitud.estado_sistema = reader.GetString(19);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {
                 pSolicitud.estado_sistema = null;
             }
+            try
+            {
+                pSolicitud.tiene_nombramiento = reader.GetString(20);
+            }
+            catch
+            {
+                pSolicitud.tiene_nombramiento = null;
+            }
+            try
+            {
+                pSolicitud.horas_nombradas = reader.GetInt32(21);
+            }
+            catch
+            {
+                pSolicitud.horas_nombradas = 0;
+            }
+            try
+            {
+                pSolicitud.tipo_beca_nombrada = reader.GetString(22);
+            }
+            catch
+            {
+                pSolicitud.tipo_beca_nombrada = null;
+            }
+            try
+            {
+                pSolicitud.lugar_nombramiento = reader.GetString(23);
+            }
+            catch
+            {
+                pSolicitud.lugar_nombramiento = null;
+            }
+
             return pSolicitud;
         }
-
+        
         private fecha leerFecha(fecha pFecha, SqlDataReader reader)
         {
             try
