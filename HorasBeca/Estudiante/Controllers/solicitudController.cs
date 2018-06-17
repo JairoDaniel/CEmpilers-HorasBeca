@@ -181,6 +181,25 @@ namespace Estudiante.Controllers
             }
         }
 
+        private fecha leerFecha(fecha pFecha, SqlDataReader reader)
+        {
+            try
+            {
+                pFecha.fecha_inicio = reader.GetDateTime(0).ToString("dd-MM-yyyy");
+
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            { }
+
+            try
+            {
+                pFecha.fecha_final = reader.GetDateTime(1).ToString("dd-MM-yyyy");
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            { }
+            return pFecha;
+        }
+
         [Route("getPeriodo")]
         [HttpGet]
         public IHttpActionResult getPeriodo()
