@@ -45,6 +45,96 @@ namespace Estudiante.Controllers
 
         }
 
+        [Route("obtenerSolicitudesEnviadas/{carnet}")]
+        [HttpGet]
+        public IHttpActionResult getSolicitudEnviada(String carnet)
+        {
+            List<solicitud> solicitudes = new List<solicitud>();
+            using (SqlConnection connection = DBConnection.getConnection())
+            {
+
+                connection.Open();
+                SqlCommand command = new SqlCommand("SELECT * from [SOLICITUD] where carnet= '" + carnet +"' and estado_estudiante = 'enviada' ", connection);
+                try
+                {
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        solicitud pSolicitud = new solicitud();
+
+                        solicitudes.Add(leerJson(pSolicitud, reader));
+                    }
+                    return Json(solicitudes);
+                }
+                catch (SqlException ex)
+                {
+                    return Json(ex);
+                }
+                finally { connection.Close(); }
+            }
+
+        }
+
+        [Route("obtenerSolicitudesGuardadas/{carnet}")]
+        [HttpGet]
+        public IHttpActionResult getSolicitudGuardadas(String carnet)
+        {
+            List<solicitud> solicitudes = new List<solicitud>();
+            using (SqlConnection connection = DBConnection.getConnection())
+            {
+
+                connection.Open();
+                SqlCommand command = new SqlCommand("SELECT * from [SOLICITUD] where carnet= '" + carnet + "' and estado_estudiante = 'guardada' ", connection);
+                try
+                {
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        solicitud pSolicitud = new solicitud();
+
+                        solicitudes.Add(leerJson(pSolicitud, reader));
+                    }
+                    return Json(solicitudes);
+                }
+                catch (SqlException ex)
+                {
+                    return Json(ex);
+                }
+                finally { connection.Close(); }
+            }
+
+        }
+
+        [Route("obtenerSolicitudesCanceladas/{carnet}")]
+        [HttpGet]
+        public IHttpActionResult getSolicitudCanceladas(String carnet)
+        {
+            List<solicitud> solicitudes = new List<solicitud>();
+            using (SqlConnection connection = DBConnection.getConnection())
+            {
+
+                connection.Open();
+                SqlCommand command = new SqlCommand("SELECT * from [SOLICITUD] where carnet= '" + carnet + "' and estado_estudiante = 'cancelada' ", connection);
+                try
+                {
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        solicitud pSolicitud = new solicitud();
+
+                        solicitudes.Add(leerJson(pSolicitud, reader));
+                    }
+                    return Json(solicitudes);
+                }
+                catch (SqlException ex)
+                {
+                    return Json(ex);
+                }
+                finally { connection.Close(); }
+            }
+
+        }
+
         [Route("ingresarSolicitud")]
         [HttpPost]
         public void nuevaSolicitud(solicitud pSolicitud)
