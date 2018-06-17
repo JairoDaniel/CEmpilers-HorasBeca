@@ -181,6 +181,39 @@ namespace Estudiante.Controllers
             }
         }
 
+        [Route("getPeriodo")]
+        [HttpGet]
+        public IHttpActionResult getPeriodo()
+        {
+            List<fecha> fecha = new List<fecha>();
+            using (SqlConnection connection = DBConnection.getConnection())
+            {
+
+                SqlCommand command = new SqlCommand("dbo.get_periodo", connection);
+                command.CommandType = CommandType.StoredProcedure;
+
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        fecha pFecha = new fecha();
+
+                        fecha.Add(leerFecha(pFecha, reader));
+                    }
+                    return Json(fecha);
+
+                }
+                catch (SqlException ex)
+                {
+                    Console.WriteLine(ex);
+                    return Json(fecha);
+                }
+                finally { connection.Close(); }
+            }
+        }
         private solicitud leerJson(solicitud pSolicitud, SqlDataReader reader)
         {
             try
