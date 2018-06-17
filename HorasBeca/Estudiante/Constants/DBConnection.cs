@@ -10,7 +10,15 @@ namespace Estudiante.Constants
     {
         public static SqlConnection getConnection()
         {
-            SqlConnection connection = new SqlConnection("Data Source = DESKTOP-BBHJE8R\\SQLEXPRESS; Initial Catalog = HorasBecaDB; Integrated Security = true;");
+
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
+
+            builder.DataSource = "DESKTOP-059I8H7\\SQLSERVERHB";
+            builder.InitialCatalog = "HorasBecaDB";
+            builder.UserID = "horasBecaSQL";
+            builder.Password = "horasBecaSQL";
+
+            SqlConnection connection = new SqlConnection(builder.ConnectionString);
             return connection;
         }
     }
