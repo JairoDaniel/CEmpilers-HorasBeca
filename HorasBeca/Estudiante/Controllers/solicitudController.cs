@@ -231,59 +231,80 @@ namespace Estudiante.Controllers
             }
         }
 
-        [Route("obtenerSolicitud")]
+        [Route("obtenerSolicitud/{id}")]
         [HttpGet]
         public IHttpActionResult get_solicitud(int id)
         {
+            int p = 0;
             solicitud solicitud = new solicitud();
             using (SqlConnection connection = DBConnection.getConnection())
             {
                 connection.Open();
                 SqlCommand command = new SqlCommand("SELECT * FROM [SOLICITUD] where id_solicitud= '" + id + "' ", connection);
-                SqlCommand get_ta = new SqlCommand("SELECT * FROM [SOLICITUD_TA] WHERE id_solicitud='"+id+"'",connection);
-                SqlCommand get_especial = new SqlCommand("SELECT * FROM [SOLICITUD_ESPECIAL] WHERE id_solicitud='" + id + "'", connection);
                 try
                 {
                     SqlDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        solicitud pSolicitud = new solicitud();
-                        solicitud = leerJson(pSolicitud, reader);
-                    }            
+                        solicitud = leerJson(solicitud, reader);
+                        p = p + 1;
+                    }
                 }
-                catch (SqlException ex){return Json(ex);}
+                catch (SqlException ex) { return Json(ex); }
                 finally { connection.Close(); }
 
-                if (solicitud.tipo_beca=="estudiante" || solicitud.tipo_beca=="asistente")
+                
+            }
+              string tipo = solicitud.tipo_beca;
+              if (tipo =="tutor" || tipo=="asistente")
                 {
-                    try
+                    using (SqlConnection connection1 = DBConnection.getConnection())
                     {
-                        SqlDataReader reader = get_ta.ExecuteReader();
-                        while (reader.Read())
-                        {
-                            solicitud = leerTA(solicitud, reader);
-                        }
-                    }
-                    catch (SqlException ex) { return Json(ex); }
-                    finally { connection.Close(); }
-                }
+                       connection1.Open();
+                        SqlCommand get_ta = new SqlCommand("SELECT * FROM [SOLICITUD_TA] WHERE id_solicitud='" + id + "'", connection1);
 
-                if (solicitud.tipo_beca == "especial")
+                        try
+                        {
+                            SqlDataReader reader = get_ta.ExecuteReader();
+                            while (reader.Read())
+                            {
+                                solicitud = leerTA(solicitud, reader);
+                                p ++;
+                            }
+                        }
+                        catch (SqlException ex) { return Json(ex); }
+                        finally { connection1.Close(); }
+                    }
+                }
+            
+            
+            if (tipo == "especial")
+            {
+                using (SqlConnection connection2 = DBConnection.getConnection())
                 {
+                    connection2.Open();
+                    SqlCommand get_especial = new SqlCommand("SELECT * FROM [SOLICITUD_ESPECIAL] WHERE id_solicitud='" + id + "'", connection2);
+
                     try
                     {
-                        SqlDataReader reader = command.ExecuteReader();
+                        SqlDataReader reader = get_especial.ExecuteReader();
                         while (reader.Read())
                         {
                             solicitud = leerEspecial(solicitud, reader);
+                            p++; 
                         }
                     }
                     catch (SqlException ex) { return Json(ex); }
-                    finally { connection.Close(); }
+                    finally { connection2.Close(); }
+
                 }
-                return Json(solicitud);
-            }
+
+            } 
+            
+            return Json(solicitud);
         }
+
+        
 
         [Route("getPeriodo")]
         [HttpGet]
@@ -304,7 +325,6 @@ namespace Estudiante.Controllers
                     while (reader.Read())
                     {
                         fecha pFecha = new fecha();
-
                         fecha.Add(leerFecha(pFecha, reader));
                     }
                     return Json(fecha);
@@ -318,6 +338,7 @@ namespace Estudiante.Controllers
                 finally { connection.Close(); }
             }
         }
+
 
         private int leerId(SqlDataReader reader)
         {
