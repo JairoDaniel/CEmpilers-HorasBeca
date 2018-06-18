@@ -363,7 +363,7 @@ namespace Asistente.Controllers
         {
             try
             {
-                pFecha.fecha_inicio = reader.GetDateTime(0).ToString("dd-MM-yyyy");
+                pFecha.fecha_inicio = reader.GetString(0);
                
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
@@ -371,7 +371,7 @@ namespace Asistente.Controllers
 
             try
             {
-                pFecha.fecha_final = reader.GetDateTime(1).ToString("dd-MM-yyyy");
+                pFecha.fecha_final = reader.GetString(1);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             {   }
@@ -444,16 +444,16 @@ namespace Asistente.Controllers
 
         [Route("setPeriodo")]
         [HttpPost]
-        public void setPeriodo(fecha pfecha)
+        public void setPeriodo( fecha pfecha)
         {
             using (SqlConnection connection = DBConnection.getConnection())
             {
-
+               
                 SqlCommand command = new SqlCommand("dbo.ingresar_periodo", connection);
                 command.CommandType = CommandType.StoredProcedure;
 
-                command.Parameters.AddWithValue("@fecha_inicio", SqlDbType.Date).Value = Convert.ToDateTime(pfecha.fecha_inicio);
-                command.Parameters.AddWithValue("@fecha_final", SqlDbType.Date).Value = Convert.ToDateTime(pfecha.fecha_final);
+                command.Parameters.AddWithValue("@fecha_inicio", SqlDbType.VarChar).Value = pfecha.fecha_inicio;
+                command.Parameters.AddWithValue("@fecha_fin", SqlDbType.VarChar).Value = pfecha.fecha_final;
                 try
                 {
                     connection.Open();

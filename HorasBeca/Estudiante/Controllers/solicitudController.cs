@@ -304,7 +304,24 @@ namespace Estudiante.Controllers
             return Json(solicitud);
         }
 
-        
+        private fecha leerFecha(fecha pFecha, SqlDataReader reader)
+        {
+            try
+            {
+                pFecha.fecha_inicio = reader.GetString(0);
+
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            { }
+
+            try
+            {
+                pFecha.fecha_final = reader.GetString(1);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            { }
+            return pFecha;
+        }
 
         [Route("getPeriodo")]
         [HttpGet]
@@ -339,6 +356,36 @@ namespace Estudiante.Controllers
             }
         }
 
+        public fecha get_periodo()
+        {
+            fecha fecha = new fecha();
+            using (SqlConnection connection = DBConnection.getConnection())
+            {
+
+                SqlCommand command = new SqlCommand("dbo.get_periodo", connection);
+                command.CommandType = CommandType.StoredProcedure;
+
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        fecha = leerFecha(fecha, reader);
+                    }
+                    return fecha;
+
+                }
+                catch (SqlException ex)
+                {
+                    Console.WriteLine(ex);
+                    return fecha;
+                }
+                finally { connection.Close(); }
+            }
+        }
+
 
         private int leerId(SqlDataReader reader)
         {
@@ -351,25 +398,6 @@ namespace Estudiante.Controllers
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             { }
             return id;
-        }
-
-        private fecha leerFecha(fecha pFecha, SqlDataReader reader)
-        {
-            try
-            {
-                pFecha.fecha_inicio = reader.GetDateTime(0).ToString("dd-MM-yyyy");
-
-            }
-            catch (System.Data.SqlTypes.SqlNullValueException ex)
-            { }
-
-            try
-            {
-                pFecha.fecha_final = reader.GetDateTime(1).ToString("dd-MM-yyyy");
-            }
-            catch (System.Data.SqlTypes.SqlNullValueException ex)
-            { }
-            return pFecha;
         }
 
         private solicitud leerJson(solicitud pSolicitud, SqlDataReader reader)
@@ -603,5 +631,7 @@ namespace Estudiante.Controllers
             }
             return pSolicitud;
         }
+
+   
     }
 }
