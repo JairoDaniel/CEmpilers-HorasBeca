@@ -128,7 +128,7 @@ namespace Responsable.Controllers
             }
         }
 
-        [Route("getAsistentes")]
+        [Route("getAsistentes/{responsable}")]
         [HttpGet]
         public IHttpActionResult getAsistentes(string responsable)
         {

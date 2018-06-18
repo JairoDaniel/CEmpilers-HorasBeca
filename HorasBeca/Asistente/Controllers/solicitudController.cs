@@ -397,7 +397,6 @@ namespace Asistente.Controllers
                     while (reader.Read())
                     {
                         fecha pFecha = new fecha();
-
                         fecha.Add(leerFecha(pFecha, reader));
                     }
                     return Json(fecha);
@@ -411,6 +410,37 @@ namespace Asistente.Controllers
                 finally { connection.Close(); }
             }
         }
+
+        public fecha get_periodo()
+        {
+            fecha fecha = new fecha();
+            using (SqlConnection connection = DBConnection.getConnection())
+            {
+
+                SqlCommand command = new SqlCommand("dbo.get_periodo", connection);
+                command.CommandType = CommandType.StoredProcedure;
+
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        fecha = leerFecha(fecha,reader);
+                    }
+                    return fecha;
+
+                }
+                catch (SqlException ex)
+                {
+                    Console.WriteLine(ex);
+                    return fecha;
+                }
+                finally { connection.Close(); }
+            }
+        }
+
 
         [Route("setPeriodo")]
         [HttpPost]
@@ -437,6 +467,47 @@ namespace Asistente.Controllers
             }
         }
 
+        private string leerEstadoSistema(string estado, SqlDataReader reader)
+        {
+            try
+            {
+                estado = reader.GetString(0);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {
+                return estado = "null";
+            }
+            return estado;
+        }
+        public string get_estado_sistema(int id)
+        {
+            string estado="";
+            using (SqlConnection connection = DBConnection.getConnection())
+            {
+
+                SqlCommand command = new SqlCommand("dbo.get_estado_sistema", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@id", SqlDbType.Int).Value = id;
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        estado = leerEstadoSistema(estado,reader);
+                    }
+                    return estado;
+
+                }
+                catch (SqlException ex)
+                {
+                    Console.WriteLine(ex);
+                    return estado;
+                }
+                finally { connection.Close(); }
+            }
+        }
     }
 
 
