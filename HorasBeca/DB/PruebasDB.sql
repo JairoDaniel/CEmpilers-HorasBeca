@@ -66,6 +66,6 @@ DECLARE @inicio DATE;
 SET @inicio = GETDATE();
 SELECT @inicio;
 
---SELECT id_solicitud from [APROBADA] where responsable='marco'
+SELECT id_solicitud from [APROBADA] where responsable='marco'
 
---get_carnet_nombre 14
+get_carnet_nombre 14
