@@ -31,5 +31,12 @@ namespace Estudiante.Models
         public int horas_nombradas { get; set; }
         public string tipo_beca_nombrada { get; set; }
         public string lugar_nombramiento { get; set; }
+        public int horas_disponibles { get; set; }
+        public string id_curso { get; set; }
+        public string nombre_curso { get; set; }
+        public int nota { get; set; }
+        public string reponsable { get; set; }
+        public string screen_notas {get; set;}
+   
     }
 }

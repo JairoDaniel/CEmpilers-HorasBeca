@@ -139,11 +139,18 @@ namespace Estudiante.Controllers
         [HttpPost]
         public void nuevaSolicitud(solicitud pSolicitud)
         {
+            int ultimo_id = 0;
             using (SqlConnection connection = DBConnection.getConnection())
             {
-
                 SqlCommand command = new SqlCommand("dbo.insertar_solicitud", connection);
+                SqlCommand get_id = new SqlCommand("dbo.get_ultimo_id", connection);
+                SqlCommand insert_ta = new SqlCommand("dbo.insertar_solicitud_ta", connection);
+                SqlCommand insert_especial = new SqlCommand("dbo.insertar_solicitud_especial", connection);
+
                 command.CommandType = CommandType.StoredProcedure;
+                get_id.CommandType = CommandType.StoredProcedure;
+                insert_ta.CommandType = CommandType.StoredProcedure;
+                insert_especial.CommandType = CommandType.StoredProcedure;
 
                 command.Parameters.AddWithValue("@semestre", SqlDbType.Int).Value = Convert.ToInt32(pSolicitud.semestre);
                 command.Parameters.AddWithValue("@cedula", SqlDbType.Int).Value = Convert.ToInt32(pSolicitud.cedula);
@@ -167,37 +174,115 @@ namespace Estudiante.Controllers
                 command.Parameters.AddWithValue("@horas_nombradas", SqlDbType.Int).Value = pSolicitud.horas_nombradas;
                 command.Parameters.AddWithValue("@tipo_beca_nombrada", SqlDbType.VarChar).Value = pSolicitud.tipo_beca;
                 command.Parameters.AddWithValue("@lugar_nombramiento", SqlDbType.VarChar).Value = pSolicitud.lugar_nombramiento;
-                 
-                try
+
+                try    //--GUARDA LA SOLICITUD GENERICA CON TODOS LOS DATOS COMUNES 
                 {
                     connection.Open();
-                    command.ExecuteNonQuery();
+                    get_id.ExecuteNonQuery();
                 }
-                catch (SqlException ex)
-                {
-                    Console.WriteLine(ex);
-                }
+                catch (SqlException ex){Console.WriteLine(ex);}
                 finally { connection.Close(); }
+
+
+                try //--CAPTA EL ID DE LA SOLICITUD QUE ACABO DE INGRESAR 
+                {
+                    connection.Open();
+                    get_id.ExecuteNonQuery();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        ultimo_id = leerId(reader);
+                    }
+                }
+                catch (SqlException ex){ Console.WriteLine(ex); }
+                finally { connection.Close(); }
+
+
+                //---------------- F LOGIC-----------------
+                if (pSolicitud.tipo_beca == "tutoria" || pSolicitud.tipo_beca_nombrada=="asistente")
+                {
+                    insert_ta.Parameters.AddWithValue("@id_solicitud", SqlDbType.Int).Value = ultimo_id;
+                    insert_ta.Parameters.AddWithValue("@id_curso", SqlDbType.VarChar).Value = pSolicitud.id_curso;
+                    insert_ta.Parameters.AddWithValue("@nombre_curso", SqlDbType.VarChar).Value = pSolicitud.nombre_curso; 
+                    insert_ta.Parameters.AddWithValue("@nota", SqlDbType.Int).Value = Convert.ToInt32(pSolicitud.nota);
+                    insert_ta.Parameters.AddWithValue("@responsable", SqlDbType.VarChar).Value = pSolicitud.reponsable;
+                    insert_ta.Parameters.AddWithValue("@screen_nota", SqlDbType.VarChar).Value = pSolicitud.screen_notas;
+                    try    //--GUARDA LOS DATOS UNICOS DE LA SOLICITUD DE TUTORIA Y ASISTENCIA 
+                    {
+                        connection.Open();
+                        insert_ta.ExecuteNonQuery();
+                    }
+                    catch (SqlException ex) { Console.WriteLine(ex); }
+                    finally { connection.Close(); }
+                }
+                if (pSolicitud.tipo_beca == "especial")
+                {
+                    insert_especial.Parameters.AddWithValue("@id_solicitud", SqlDbType.Int).Value = ultimo_id;
+                    insert_especial.Parameters.AddWithValue("horas_disponibles",SqlDbType.Int).Value= Convert.ToInt32(pSolicitud.horas_disponibles);
+                    try    //--GUARDA LOS DATOS UNICOS DE LA SOLICITUD ESPECIAL
+                    {
+                        connection.Open();
+                        insert_especial.ExecuteNonQuery();
+                    }
+                    catch (SqlException ex) { Console.WriteLine(ex); }
+                    finally { connection.Close(); }
+                }
+
             }
         }
 
-        private fecha leerFecha(fecha pFecha, SqlDataReader reader)
+        [Route("obtenerSolicitud")]
+        [HttpGet]
+        public IHttpActionResult get_solicitud(int id)
         {
-            try
+            solicitud solicitud = new solicitud();
+            using (SqlConnection connection = DBConnection.getConnection())
             {
-                pFecha.fecha_inicio = reader.GetDateTime(0).ToString("dd-MM-yyyy");
+                connection.Open();
+                SqlCommand command = new SqlCommand("SELECT * FROM [SOLICITUD] where id_solicitud= '" + id + "' ", connection);
+                SqlCommand get_ta = new SqlCommand("SELECT * FROM [SOLICITUD_TA] WHERE id_solicitud='"+id+"'",connection);
+                SqlCommand get_especial = new SqlCommand("SELECT * FROM [SOLICITUD_ESPECIAL] WHERE id_solicitud='" + id + "'", connection);
+                try
+                {
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        solicitud pSolicitud = new solicitud();
+                        solicitud = leerJson(pSolicitud, reader);
+                    }            
+                }
+                catch (SqlException ex){return Json(ex);}
+                finally { connection.Close(); }
 
-            }
-            catch (System.Data.SqlTypes.SqlNullValueException ex)
-            { }
+                if (solicitud.tipo_beca=="estudiante" || solicitud.tipo_beca=="asistente")
+                {
+                    try
+                    {
+                        SqlDataReader reader = get_ta.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            solicitud = leerTA(solicitud, reader);
+                        }
+                    }
+                    catch (SqlException ex) { return Json(ex); }
+                    finally { connection.Close(); }
+                }
 
-            try
-            {
-                pFecha.fecha_final = reader.GetDateTime(1).ToString("dd-MM-yyyy");
+                if (solicitud.tipo_beca == "especial")
+                {
+                    try
+                    {
+                        SqlDataReader reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            solicitud = leerEspecial(solicitud, reader);
+                        }
+                    }
+                    catch (SqlException ex) { return Json(ex); }
+                    finally { connection.Close(); }
+                }
+                return Json(solicitud);
             }
-            catch (System.Data.SqlTypes.SqlNullValueException ex)
-            { }
-            return pFecha;
         }
 
         [Route("getPeriodo")]
@@ -233,6 +318,39 @@ namespace Estudiante.Controllers
                 finally { connection.Close(); }
             }
         }
+
+        private int leerId(SqlDataReader reader)
+        {
+            int id = 0;
+            try
+            {
+                id = reader.GetInt32(0);
+
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            { }
+            return id;
+        }
+
+        private fecha leerFecha(fecha pFecha, SqlDataReader reader)
+        {
+            try
+            {
+                pFecha.fecha_inicio = reader.GetDateTime(0).ToString("dd-MM-yyyy");
+
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            { }
+
+            try
+            {
+                pFecha.fecha_final = reader.GetDateTime(1).ToString("dd-MM-yyyy");
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            { }
+            return pFecha;
+        }
+
         private solicitud leerJson(solicitud pSolicitud, SqlDataReader reader)
         {
             try
@@ -405,6 +523,63 @@ namespace Estudiante.Controllers
                 pSolicitud.lugar_nombramiento = null;
             }
 
+            return pSolicitud;
+        }
+
+        private solicitud leerEspecial(solicitud pSolicitud, SqlDataReader reader)
+        {
+            try
+            {
+                pSolicitud.horas_disponibles = reader.GetInt32(1);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {
+                pSolicitud.id_solicitud = 0;
+            }
+            return pSolicitud;
+        }
+        private solicitud leerTA(solicitud pSolicitud, SqlDataReader reader)
+        {
+            try
+            {
+                pSolicitud.id_curso = reader.GetString(1);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {
+                pSolicitud.id_curso = null;
+            }
+            try
+            {
+                pSolicitud.nombre_curso = reader.GetString(2);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {
+                pSolicitud.nombre_curso = null;
+            }
+            try
+            {
+                pSolicitud.nota = reader.GetInt32(3);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {
+                pSolicitud.nota = 0;
+            }
+            try
+            {
+                pSolicitud.reponsable = reader.GetString(4);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {
+                pSolicitud.reponsable = null;
+            }
+            try
+            {
+                pSolicitud.screen_notas = reader.GetString(5);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            {
+                pSolicitud.screen_notas = null;
+            }
             return pSolicitud;
         }
     }
