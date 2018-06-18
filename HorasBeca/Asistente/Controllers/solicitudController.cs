@@ -358,23 +358,23 @@ namespace Asistente.Controllers
 
             return pSolicitud;
         }
-
+        
         private fecha leerFecha(fecha pFecha, SqlDataReader reader)
         {
             try
             {
                 pFecha.fecha_inicio = reader.GetString(0);
-
+               
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
-            { }
+            {   }
 
             try
             {
                 pFecha.fecha_final = reader.GetString(1);
             }
             catch (System.Data.SqlTypes.SqlNullValueException ex)
-            { }
+            {   }
             return pFecha;
         }
 
@@ -401,12 +401,12 @@ namespace Asistente.Controllers
                     }
                     return Json(fecha);
 
-                }
+                } 
                 catch (SqlException ex)
                 {
                     Console.WriteLine(ex);
                     return Json(fecha);
-                }
+                } 
                 finally { connection.Close(); }
             }
         }
@@ -427,7 +427,7 @@ namespace Asistente.Controllers
                     SqlDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        fecha = leerFecha(fecha, reader);
+                        fecha = leerFecha(fecha,reader);
                     }
                     return fecha;
 
@@ -444,16 +444,16 @@ namespace Asistente.Controllers
 
         [Route("setPeriodo")]
         [HttpPost]
-        public void setPeriodo(fecha pfecha)
+        public void setPeriodo( fecha pfecha)
         {
             using (SqlConnection connection = DBConnection.getConnection())
             {
-
+               
                 SqlCommand command = new SqlCommand("dbo.ingresar_periodo", connection);
                 command.CommandType = CommandType.StoredProcedure;
 
                 command.Parameters.AddWithValue("@fecha_inicio", SqlDbType.VarChar).Value = pfecha.fecha_inicio;
-                command.Parameters.AddWithValue("@fecha_final", SqlDbType.VarChar).Value = pfecha.fecha_final;
+                command.Parameters.AddWithValue("@fecha_fin", SqlDbType.VarChar).Value = pfecha.fecha_final;
                 try
                 {
                     connection.Open();

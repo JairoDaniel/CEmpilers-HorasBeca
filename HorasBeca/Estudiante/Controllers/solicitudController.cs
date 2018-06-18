@@ -44,35 +44,6 @@ namespace Estudiante.Controllers
             }
 
         }
-        /*
-        [Route("obtenerUltimoId")]
-        [HttpGet]
-        public IHttpActionResult getUltimoId()
-        {
-            using (SqlConnection connection = DBConnection.getConnection())
-            {
-
-                SqlCommand command = new SqlCommand("dbo.get_ultimo_id", connection);
-                command.CommandType = CommandType.StoredProcedure;
-
-                try
-                {
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                    SqlDataReader reader = command.ExecuteReader();
-                    int num = reader.GetInt32(0); 
-                    return Json(num);
-                    
-                }
-                catch (SqlException ex)
-                {
-                    Console.WriteLine(ex);
-                    return Json(ex);
-                }
-                finally { connection.Close(); }
-            }
-
-        }*/
 
         [Route("obtenerSolicitudesEnviadas/{carnet}")]
         [HttpGet]
@@ -276,7 +247,7 @@ namespace Estudiante.Controllers
                     while (reader.Read())
                     {
                         solicitud = leerJson(solicitud, reader);
-                      
+                        p = p + 1;
                     }
                 }
                 catch (SqlException ex) { return Json(ex); }
@@ -320,7 +291,7 @@ namespace Estudiante.Controllers
                         while (reader.Read())
                         {
                             solicitud = leerEspecial(solicitud, reader);
-                            
+                            p++; 
                         }
                     }
                     catch (SqlException ex) { return Json(ex); }
@@ -331,6 +302,25 @@ namespace Estudiante.Controllers
             } 
             
             return Json(solicitud);
+        }
+
+        private fecha leerFecha(fecha pFecha, SqlDataReader reader)
+        {
+            try
+            {
+                pFecha.fecha_inicio = reader.GetString(0);
+
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            { }
+
+            try
+            {
+                pFecha.fecha_final = reader.GetString(1);
+            }
+            catch (System.Data.SqlTypes.SqlNullValueException ex)
+            { }
+            return pFecha;
         }
 
         [Route("getPeriodo")]
@@ -396,6 +386,7 @@ namespace Estudiante.Controllers
             }
         }
 
+
         private int leerId(SqlDataReader reader)
         {
             int id = 0;
@@ -407,25 +398,6 @@ namespace Estudiante.Controllers
             catch (System.Data.SqlTypes.SqlNullValueException ex)
             { }
             return id;
-        }
-
-        private fecha leerFecha(fecha pFecha, SqlDataReader reader)
-        {
-            try
-            {
-                pFecha.fecha_inicio = reader.GetString(0);
-
-            }
-            catch (System.Data.SqlTypes.SqlNullValueException ex)
-            { }
-
-            try
-            {
-                pFecha.fecha_final = reader.GetString(1);
-            }
-            catch (System.Data.SqlTypes.SqlNullValueException ex)
-            { }
-            return pFecha;
         }
 
         private solicitud leerJson(solicitud pSolicitud, SqlDataReader reader)
@@ -659,5 +631,7 @@ namespace Estudiante.Controllers
             }
             return pSolicitud;
         }
+
+   
     }
 }
