@@ -178,7 +178,7 @@ namespace Estudiante.Controllers
                 try    //--GUARDA LA SOLICITUD GENERICA CON TODOS LOS DATOS COMUNES 
                 {
                     connection.Open();
-                    get_id.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
                 }
                 catch (SqlException ex){Console.WriteLine(ex);}
                 finally { connection.Close(); }
