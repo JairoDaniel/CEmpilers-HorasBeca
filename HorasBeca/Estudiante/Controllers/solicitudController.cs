@@ -44,6 +44,35 @@ namespace Estudiante.Controllers
             }
 
         }
+        /*
+        [Route("obtenerUltimoId")]
+        [HttpGet]
+        public IHttpActionResult getUltimoId()
+        {
+            using (SqlConnection connection = DBConnection.getConnection())
+            {
+
+                SqlCommand command = new SqlCommand("dbo.get_ultimo_id", connection);
+                command.CommandType = CommandType.StoredProcedure;
+
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    SqlDataReader reader = command.ExecuteReader();
+                    int num = reader.GetInt32(0); 
+                    return Json(num);
+                    
+                }
+                catch (SqlException ex)
+                {
+                    Console.WriteLine(ex);
+                    return Json(ex);
+                }
+                finally { connection.Close(); }
+            }
+
+        }*/
 
         [Route("obtenerSolicitudesEnviadas/{carnet}")]
         [HttpGet]
